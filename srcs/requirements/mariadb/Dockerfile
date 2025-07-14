@@ -6,8 +6,9 @@ RUN apt-get update && \
 
 RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 
-COPY tools/init.sql /docker-entrypoint-initdb.d/init.sql
+COPY tools/setup.sh /usr/local/bin/setup.sh
+RUN chmod +x /usr/local/bin/setup.sh
 
 EXPOSE 3306
 
-CMD ["mysqld"]
+CMD ["/usr/local/bin/setup.sh"]

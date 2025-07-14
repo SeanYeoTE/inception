@@ -3,13 +3,13 @@ NAME = inception
 .PHONY: all down up build fclean re
 
 up: 
-	docker compose -f srcs/docker-compose.yml --env-file srcs/.env up -d mariadb
+	docker compose -f srcs/docker-compose.yml --env-file srcs/.env up
 
 down:
-	docker compose -f srcs/docker-compose.yml --env-file srcs/.env down mariadb
+	docker compose -f srcs/docker-compose.yml --env-file srcs/.env down
 
 build:
-	docker compose -f srcs/docker-compose.yml --env-file srcs/.env build mariadb
+	docker compose -f srcs/docker-compose.yml --env-file srcs/.env build
 
 fclean: down
 	docker system prune -af --volumes
