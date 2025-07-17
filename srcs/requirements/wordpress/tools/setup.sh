@@ -66,7 +66,10 @@ if ! mysql -h mariadb -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} -e 
         --admin_user=${WP_ADMIN_USER} \
         --admin_password=${WP_ADMIN_PASSWORD} \
         --admin_email=${WP_ADMIN_EMAIL} \
-        --allow-root
+        --allow-root \
+        --user=$(WP_USER) \
+        --user_password=$(WP_USER_PASSWORD) \
+        --user_email=$(WP_USER_EMAIL)
     
     if [ $? -eq 0 ]; then
         echo "WordPress installation completed successfully!"

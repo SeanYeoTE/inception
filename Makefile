@@ -1,7 +1,5 @@
 NAME = inception
 
-.PHONY: all down up build fclean re
-
 up: 
 	docker compose -f srcs/docker-compose.yml --env-file srcs/.env up
 
