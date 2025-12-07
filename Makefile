@@ -17,7 +17,7 @@ YELLOW = \033[0;33m
 RED = \033[0;31m
 NC = \033[0m # No Color
 
-.PHONY: all build up down stop start restart logs clean fclean re status help
+.PHONY: all build up down stop start restart logs clean fclean re help
 
 all: create-dirs
 	@echo -e "$(GREEN)Building and starting services...$(NC)"
@@ -49,16 +49,6 @@ restart: down up
 
 logs:
 	$(COMPOSE) logs -f
-
-status:
-	@echo -e "$(GREEN)=== Container Status ===$(NC)"
-	$(COMPOSE) ps
-	@echo ""
-	@echo -e "$(GREEN)=== Volumes ===$(NC)"
-	docker volume ls | grep inception || echo "No volumes found"
-	@echo ""
-	@echo -e "$(GREEN)=== Networks ===$(NC)"
-	docker network ls | grep inception || echo "No networks found"
 
 clean:
 	@echo -e "$(YELLOW)Cleaning containers and volumes...$(NC)"

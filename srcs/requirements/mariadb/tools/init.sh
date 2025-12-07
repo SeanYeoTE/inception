@@ -19,19 +19,28 @@ mariadbd --user=mysql --datadir=/var/lib/mysql --socket=/tmp/mysql.sock --pid-fi
 PID=$!
 
 # Wait for server to be ready
-until mysql -u root --socket=/tmp/mysql.sock -e "SELECT 1;" > /dev/null 2>&1; do
-    echo "Waiting for MariaDB to be ready..."
+until [ -S /tmp/mysql.sock ]; do
+    echo "Waiting for MariaDB socket..."
     sleep 1
 done
 
-# Run SQL to ensure database and user exist
-mysql -u root --socket=/tmp/mysql.sock << EOF
+# Check if database setup is needed
+if mysql -u root --socket=/tmp/mysql.sock -e "SELECT 1;" 2>/dev/null; then
+    echo "Database accessible without password, performing initial setup..."
+    # Fresh install - can connect without password
+    mysql -u root --socket=/tmp/mysql.sock << EOF
 CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
 CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 FLUSH PRIVILEGES;
 EOF
+elif mysql -u root -p"${MYSQL_ROOT_PASSWORD}" --socket=/tmp/mysql.sock -e "SELECT 1;" 2>/dev/null; then
+    echo "Database already configured with password, skipping setup..."
+    # Database exists and is accessible with password - skip setup
+else
+    echo "Cannot connect to database - setup may be incomplete"
+fi
 
 # Stop temporary server
 kill $PID
