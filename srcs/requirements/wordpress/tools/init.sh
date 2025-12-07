@@ -9,7 +9,7 @@ echo "Waiting for database..."
 max_tries=30
 count=0
 
-until wp db check --allow-root 2>/dev/null; do
+until mysql -h mariadb -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" -e "SELECT 1;" >/dev/null 2>&1; do
     count=$((count + 1))
     if [ $count -gt $max_tries ]; then
         echo "ERROR: Database connection timeout!"
