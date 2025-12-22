@@ -1,36 +1,81 @@
+version: '3.8'
+
+# Base configuration using anchors for reusability
+x-base-service: &base-service
+  networks:
+    - inception
+  restart: unless-stopped
+
+x-common-mysql-variables: &common-mysql-variables
+  MYSQL_DATABASE_FILE: ${MYSQL_DATABASE_FILE}
+  MYSQL_USER_FILE: ${MYSQL_USER_FILE}
+  MYSQL_PASSWORD_FILE: ${MYSQL_PASSWORD_FILE}
+
+x-database-variables: &database-variables
+  <<: *common-mysql-variables
+  MYSQL_ROOT_PASSWORD_FILE: ${MYSQL_ROOT_PASSWORD_FILE}
+
+x-wordpress-variables: &wordpress-variables
+  <<: *common-mysql-variables
+  DOMAIN_NAME_FILE: ${DOMAIN_NAME_FILE}
+  WP_ADMIN_USER_FILE: ${WP_ADMIN_USER_FILE}
+  WP_ADMIN_PASSWORD_FILE: ${WP_ADMIN_PASSWORD_FILE}
+  WP_ADMIN_EMAIL_FILE: ${WP_ADMIN_EMAIL_FILE}
+  WP_USER_FILE: ${WP_USER_FILE}
+  WP_USER_EMAIL_FILE: ${WP_USER_EMAIL_FILE}
+  WP_USER_PASSWORD_FILE: ${WP_USER_PASSWORD_FILE}
+
+x-database-secrets: &database-secrets
+  - MYSQL_ROOT_PASSWORD
+  - MYSQL_DATABASE
+  - MYSQL_USER
+  - MYSQL_PASSWORD
+
+x-wordpress-secrets: &wordpress-secrets
+  - MYSQL_DATABASE
+  - MYSQL_USER
+  - MYSQL_PASSWORD
+  - DOMAIN_NAME
+  - WP_ADMIN_USER
+  - WP_ADMIN_PASSWORD
+  - WP_ADMIN_EMAIL
+  - WP_USER
+  - WP_USER_EMAIL
+  - WP_USER_PASSWORD
+
 services:
   mariadb:
+    <<: *base-service
     build: ./requirements/mariadb
     container_name: mariadb
-    networks:
-      - inception
-    restart: unless-stopped
-    env_file: .env
+    secrets: *database-secrets
+    environment: *database-variables
     volumes:
       - db_data:/var/lib/mysql
 
   wordpress:
+    <<: *base-service
     build: ./requirements/wordpress
     container_name: wordpress
-    networks:
-      - inception
-    restart: unless-stopped
     depends_on:
       - mariadb
-    env_file: .env
+    secrets: *wordpress-secrets
+    environment: *wordpress-variables
     volumes:
       - wp_data:/var/www/html
 
   nginx:
+    <<: *base-service
     build: ./requirements/nginx
     container_name: nginx
-    networks:
-      - inception
     depends_on:
       - wordpress
-    restart: unless-stopped
     ports:
       - "443:443"
+    secrets:
+      - DOMAIN_NAME
+    environment:
+      - DOMAIN_NAME_FILE=${DOMAIN_NAME_FILE}
     volumes:
       - wp_data:/var/www/html
 
@@ -52,3 +97,17 @@ networks:
   inception:
     driver: bridge
     name: inception
+
+# Centralized secret definitions
+secrets:
+  MYSQL_ROOT_PASSWORD: {file: ../secrets/MYSQL_ROOT_PASSWORD.txt}
+  MYSQL_DATABASE: {file: ../secrets/MYSQL_DATABASE.txt}
+  MYSQL_USER: {file: ../secrets/MYSQL_USER.txt}
+  MYSQL_PASSWORD: {file: ../secrets/MYSQL_PASSWORD.txt}
+  DOMAIN_NAME: {file: ../secrets/DOMAIN_NAME.txt}
+  WP_ADMIN_USER: {file: ../secrets/WP_ADMIN_USER.txt}
+  WP_ADMIN_PASSWORD: {file: ../secrets/WP_ADMIN_PASSWORD.txt}
+  WP_ADMIN_EMAIL: {file: ../secrets/WP_ADMIN_EMAIL.txt}
+  WP_USER: {file: ../secrets/WP_USER.txt}
+  WP_USER_EMAIL: {file: ../secrets/WP_USER_EMAIL.txt}
+  WP_USER_PASSWORD: {file: ../secrets/WP_USER_PASSWORD.txt}
