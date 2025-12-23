@@ -4,6 +4,20 @@ set -e
 
 echo "Starting WordPress setup..."
 
+# Read secrets from Docker secrets
+MYSQL_DATABASE=$(cat ${MYSQL_DATABASE_FILE})
+MYSQL_USER=$(cat ${MYSQL_USER_FILE})
+MYSQL_PASSWORD=$(cat ${MYSQL_PASSWORD_FILE})
+DOMAIN_NAME=$(cat ${DOMAIN_NAME_FILE})
+WP_ADMIN_USER=$(cat ${WP_ADMIN_USER_FILE})
+WP_ADMIN_PASSWORD=$(cat ${WP_ADMIN_PASSWORD_FILE})
+WP_ADMIN_EMAIL=$(cat ${WP_ADMIN_EMAIL_FILE})
+WP_USER=$(cat ${WP_USER_FILE})
+WP_USER_EMAIL=$(cat ${WP_USER_EMAIL_FILE})
+WP_USER_PASSWORD=$(cat ${WP_USER_PASSWORD_FILE})
+
+echo "Database: ${MYSQL_DATABASE}, User: ${MYSQL_USER}, Domain: ${DOMAIN_NAME}"
+
 # Wait for MariaDB to be ready
 echo "Waiting for database..."
 max_tries=30

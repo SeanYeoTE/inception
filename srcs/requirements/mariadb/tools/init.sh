@@ -3,6 +3,14 @@ set -e
 
 echo "Starting MariaDB initialization..."
 
+# Read secrets from Docker secrets
+MYSQL_ROOT_PASSWORD=$(cat ${MYSQL_ROOT_PASSWORD_FILE})
+MYSQL_DATABASE=$(cat ${MYSQL_DATABASE_FILE})
+MYSQL_USER=$(cat ${MYSQL_USER_FILE})
+MYSQL_PASSWORD=$(cat ${MYSQL_PASSWORD_FILE})
+
+echo "Database: ${MYSQL_DATABASE}, User: ${MYSQL_USER}"
+
 # Fix permissions
 chown -R mysql:mysql /var/lib/mysql /var/run/mysqld
 
