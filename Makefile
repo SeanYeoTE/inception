@@ -17,7 +17,7 @@ YELLOW = \033[0;33m
 RED = \033[0;31m
 NC = \033[0m # No Color
 
-.PHONY: all build up down stop start restart logs clean fclean re help
+.PHONY: all build up down stop restart logs clean fclean re help
 
 all: create-dirs
 	@echo -e "$(GREEN)Building and starting services...$(NC)"
@@ -36,10 +36,6 @@ up:
 down:
 	@echo -e "$(YELLOW)Stopping services...$(NC)"
 	$(COMPOSE) down
-
-stop:
-	@echo -e "$(YELLOW)Stopping containers...$(NC)"
-	$(COMPOSE) stop
 
 start:
 	@echo -e "$(GREEN)Starting containers...$(NC)"
@@ -75,11 +71,9 @@ help:
 	@echo "  make build    - Build images only (parallel)"
 	@echo "  make up       - Start services without rebuilding"
 	@echo "  make down     - Stop and remove containers"
-	@echo "  make stop     - Stop containers (keep state)"
 	@echo "  make start    - Start stopped containers"
 	@echo "  make restart  - Restart all services"
 	@echo "  make logs     - Follow container logs"
-	@echo "  make status   - Show containers, volumes, networks"
 	@echo "  make clean    - Remove containers and volumes"
 	@echo "  make fclean   - Deep clean (everything)"
 	@echo "  make re       - Full rebuild from scratch"
